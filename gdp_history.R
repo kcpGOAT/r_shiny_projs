@@ -4,7 +4,7 @@ library(readxl)
 
 # Data cleaning/processing
 
-country_gdp <- read_excel("~/Downloads/Country GDP by year in USD 1960 to 2015.xls")
+country_gdp <- read_excel("/Users/ryanquach/shiny_projects/gdp_history/country_gdp.xls")
 colnames(country_gdp)[1] <- "country"
 
 country_gdp <- country_gdp %>%
@@ -24,10 +24,8 @@ complete_countries <- with(country_gdp,
                              min(x) == 1960 & max(x) == 2014
                            }))
 complete_countries <- unique(country_gdp$country)[complete_countries]
-        
-# Building app
 
-### PROBLEM: FIX SLIDER INPUT SO THAT IT DOESN'T LOOK WEIRD
+# Building app
 
 ui <- fluidPage(
   theme = bslib::bs_theme(bootswatch = "darkly"),
@@ -71,10 +69,10 @@ server <- function(input, output, session) {
                         if (input$complete == TRUE) {
                           complete_countries
                         }
-                        else {
-                          country_gdp$country
-                        }
-                      )
+                      else {
+                        country_gdp$country
+                      }
+    )
   })
   
   output$GDP_plot <- renderPlot({
@@ -83,7 +81,7 @@ server <- function(input, output, session) {
       geom_line(aes(col = country)) + 
       labs(x = "Year", y = "GDP (billions of current US$)", title = paste0("Nominal GDP by Country: ", input$range[1], " to ", input$range[2])) +
       theme(plot.title = element_text(hjust = 0.5, face = "bold"), 
-            axis.title.y = element_text(face = "bold", vjust = 3), 
+            axis.title.y = element_text(face = "bold", vjust = 2.5), 
             axis.title.x = element_text(face = "bold", vjust = -1), 
             axis.text = element_text(color = "white")) +
       scale_x_continuous(breaks = pretty(input$range[1]:input$range[2], n = 27))
@@ -96,7 +94,7 @@ server <- function(input, output, session) {
       geom_hline(yintercept = 0) +
       labs(x = "Year", y = "GDP Growth", title = paste0("GDP Growth by Country: ", input$range[1], " to ", input$range[2])) +
       theme(plot.title = element_text(hjust = 0.5, face = "bold"), 
-            axis.title.y = element_text(face = "bold", vjust = 3), 
+            axis.title.y = element_text(face = "bold", vjust = 2.5), 
             axis.title.x = element_text(face = "bold", vjust = -1), 
             axis.text = element_text(color = "white")) +
       scale_x_continuous(breaks = pretty(input$range[1]:input$range[2], n = 27))
@@ -116,8 +114,5 @@ server <- function(input, output, session) {
                   values_from = "growth")
   })
 }
-
-## Pivot the data table so that the countries are the columns, and make one
-## for GDP and another for growth
 
 shinyApp(ui, server)
